@@ -3,13 +3,13 @@
 #include <cstdlib>
 #define LAB_SIZE 4
 
-void print_arr (double arr[LAB_SIZE][LAB_SIZE])
+void print_arr (double lab[LAB_SIZE*LAB_SIZE][LAB_SIZE*LAB_SIZE])
 {
-    for (int i = 0; i < LAB_SIZE; ++i)
+    for (int i = 0; i < LAB_SIZE*LAB_SIZE; ++i)
     {
-        for (int j = 0; j < LAB_SIZE; ++j)
-            printf ("%6.4f\t", arr[i][j]);
-        printf ("\n");
+        for (int j = 0; j < LAB_SIZE*LAB_SIZE; ++j)
+            printf ("%3.2f ", lab[i][j]);
+        printf ("\n\n");
     }
 }
 
@@ -19,10 +19,19 @@ void print_lab (double lab[LAB_SIZE*LAB_SIZE][LAB_SIZE*LAB_SIZE])
     {
         for (int j = 0; j < LAB_SIZE-1; ++j)
         {
-            printf("%d\t%c\t", i*LAB_SIZE+j, lab[i*LAB_SIZE+j][i*LAB_SIZE+j+1]?'=':'\0');
+            printf("%2d %c ", i*LAB_SIZE+j, lab[i*LAB_SIZE+j][i*LAB_SIZE+j+1]?'=':' ');
         }
         std::cout << (i+1)*LAB_SIZE-1 << '\n';
+        for (int j = 0; j < LAB_SIZE; ++j)
+        {
+            printf("%s   ", lab[i*LAB_SIZE+j][(i+1)*LAB_SIZE+j]?"||":"  ");
+        }
+        //std::cout << lab[i*LAB_SIZE+j+1][(i+1)*LAB_SIZE+j+1]?"||":"" << std::endl;
+        std::cout << '\n';
     }
+    for (int j = 0; j < LAB_SIZE-1; ++j)
+        printf("%2d %c ", LAB_SIZE*LAB_SIZE-LAB_SIZE+j, lab[LAB_SIZE*LAB_SIZE-LAB_SIZE+j][LAB_SIZE*LAB_SIZE-LAB_SIZE+j+1]?'=':' ');
+    std::cout << LAB_SIZE*LAB_SIZE-1;
 }
 
 int main()
@@ -30,11 +39,11 @@ int main()
     double arr[LAB_SIZE][LAB_SIZE];
     double lab[LAB_SIZE*LAB_SIZE][LAB_SIZE*LAB_SIZE];   /* matryca ze wszystkimi łukami - [poczatek][koniec]
                                                          * wartość 0 - brak polaczenia, !0 - waga łuku */
-    srand(0);
+    srand(2);
     for (int i = 0; i < LAB_SIZE; ++i)
         for (int j = 0; j < LAB_SIZE; ++j)
             arr[i][j] = (double)rand() / RAND_MAX * 10; // generowanie wagi dla wierzchołków
-    print_arr(arr);
+    //print_arr(arr);
 
     for (int i = 0; i < LAB_SIZE*LAB_SIZE; ++i)
         for (int j = 0; j < LAB_SIZE*LAB_SIZE; ++j)
@@ -59,7 +68,8 @@ int main()
             {
                 // diff = (options[k]/3>=1?-1:1)*(options[k]%2?LAB_SIZE:1);
                 // std::cout << "diff: " << diff << '\n';
-                if (my_rand % 16 < 3) // przyjalem prawdopodobienstwo polaczenia 9/16
+                std::cout << "los: " << options[k] << '\t';
+                if (my_rand % 16 < 0) // przyjalem prawdopodobienstwo polaczenia 9/16
                 {
                     switch (options[k])
                     {
@@ -69,13 +79,14 @@ int main()
                         case 4: lab[i*LAB_SIZE+j][(i-1)*LAB_SIZE+j] = lab[(i-1)*LAB_SIZE+j][i*LAB_SIZE+j] = (arr[i][j]+arr[i-1][j])/2.0; std::cout << 'G'; break;
                     }
                     //lab[i*LAB_SIZE+j][i*LAB_SIZE+j+diff] = lab[i*LAB_SIZE+j+diff][i*LAB_SIZE+j] = (arr[i][j] + (options[k]%2?arr[i+diff/LAB_SIZE][j]:arr[i][diff])) / 2;
-                    std::cout << options[k];
+                    std::cout << options[k] << '\n';
                     connection_exists = 1;
                 }
                 my_rand >>=4;
             }
+            std::cout << "conn:" << connection_exists << "op4:" << options[4];
             if (! connection_exists)
-                switch (options[my_rand%options[4]+1])
+                switch (options[my_rand%(options[4])+1])
                 {
                     case 1: lab[i*LAB_SIZE+j][i*LAB_SIZE+j+1]   = lab[i*LAB_SIZE+j+1][i*LAB_SIZE+j]   = (arr[i][j]+arr[i][j+1])/2.0; std::cout << "\t dolosowano P"; break;
                     case 2: lab[i*LAB_SIZE+j][(i+1)*LAB_SIZE+j] = lab[(i+1)*LAB_SIZE+j][i*LAB_SIZE+j] = (arr[i][j]+arr[i+1][j])/2.0; std::cout << "\t dolosowano D"; break;
@@ -84,6 +95,7 @@ int main()
                 }
             std::cout << "\n\n";
         }
+    print_arr(lab);
     print_lab(lab);
     return 0;
 }
