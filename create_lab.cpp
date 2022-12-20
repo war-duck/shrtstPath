@@ -1,8 +1,9 @@
 #include <cstdio>
 #include <iostream>
 #include <string>
+#include <ctime>
 #include <cstdlib>
-#define LAB_SIZE 6
+#define LAB_SIZE 5
 
 void print_arr (double lab[LAB_SIZE*LAB_SIZE][LAB_SIZE*LAB_SIZE])
 {
@@ -14,33 +15,30 @@ void print_arr (double lab[LAB_SIZE*LAB_SIZE][LAB_SIZE*LAB_SIZE])
     }
 }
 
-void print_lab (double lab[LAB_SIZE*LAB_SIZE][LAB_SIZE*LAB_SIZE])
+void print_lab (double lab[LAB_SIZE*LAB_SIZE][LAB_SIZE*LAB_SIZE], int start = -1, int end = -1)
 {
     std::string full (2, char(219)), empty = "  ";
+    std::cout << std::string(4*LAB_SIZE+2, char(219));
     for (int i = 0; i < LAB_SIZE; ++i)
     {
         //if (i != 0 && i != LAB_SIZE-1)
-        {
+            std::cout << '\n';
             for (int j = 0; j < LAB_SIZE; ++j)
             {
-                if (j == 0) std::cout << full;
+            if (j == 0) std::cout << full;
                 if (j != LAB_SIZE-1)
                     std::cout << empty << (lab[i*LAB_SIZE+j][i*LAB_SIZE+j+1]?empty:full);
-                else std::cout << empty;
+                else std::cout << empty << full;
             }
+            if (i == LAB_SIZE-1) break;
+            std::cout << '\n' << full;
             for (int j = 0; j < LAB_SIZE; ++j)
             {
-                if (j == 0 || j == LAB_SIZE-1)
-                {
-                    std::cout << full;
-                }
                 std::cout << (lab[i*LAB_SIZE+j][(i+1)*LAB_SIZE+j]?empty:full) << full;
             }
-            std::cout << '\n';
-            continue;
-        }
         
-    }std::cout << std::string(4*LAB_SIZE-4, char(219)) << '\n';
+    }
+    std::cout << '\n' << std::string(4*LAB_SIZE+2, char(219)) << '\n';
     //std::cout << full << empty << full << empty << full;
 }
 
@@ -48,14 +46,13 @@ int main()
 {
     double arr[LAB_SIZE][LAB_SIZE];
     double lab[LAB_SIZE*LAB_SIZE][LAB_SIZE*LAB_SIZE];   /* matryca ze wszystkimi łukami - [poczatek][koniec]
-                                                         * wartość 0 - brak polaczenia, !0 - waga łuku */
-    std::cout << "ziarno:\n";
-    // int seed;
-    // std::cin >> seed;
-    // srand(seed);
+                                                         //* wartość 0 - brak polaczenia, !0 - waga łuku */
+    // // int seed;
+    // // std::cin >> seed;
+    // // srand(seed);
     int seed;
     std::cin >> seed;
-    srand(5);
+    srand(time(NULL));
     for (int i = 0; i < LAB_SIZE; ++i)
         for (int j = 0; j < LAB_SIZE; ++j)
             arr[i][j] = (double)rand() / RAND_MAX * 10; // generowanie wagi dla wierzchołków
@@ -64,10 +61,10 @@ int main()
     for (int i = 0; i < LAB_SIZE*LAB_SIZE; ++i)
         for (int j = 0; j < LAB_SIZE*LAB_SIZE; ++j)
             lab[i][j] = 0.0;
-    //short options[5]; // 1/2/3/4 - Prawo/Dół/Lewo/Góra   
+    short options[5]; // 1/2/3/4 - Prawo/Dół/Lewo/Góra. [5] - l. opcji
     //bool down, right;
     short connection_exists;
-    signed int diff;
+    int diff, sgn;
     for (int i = 0; i < LAB_SIZE; ++i)
     {
         for (int j = 0; j < LAB_SIZE; ++j)
@@ -75,64 +72,36 @@ int main()
             connection_exists = 0;
             //for (short k = 0; k < 5; ++k) options[k] = 0; // options[4] - poczatkowa liczba opcji
             unsigned int my_rand = rand();
-            // if (j != 0)             options[options[4]++] = 3; // lewo dostepne
-            // if (j != LAB_SIZE - 1)  options[options[4]++] = 1; // prawo dostepne
-            // if (i != 0)             options[options[4]++] = 4; // gora dostepna
-            // if (i != LAB_SIZE - 1)  options[options[4]++] = 2; // dol dostepny
+
             // down = right = 1;
             // if (i == LAB_SIZE-1)  down = 0;
             // if (j == LAB_SIZE-1) right = 0;
             //std::cout << right << down << '\t';
-            if (i != LAB_SIZE-1 && rand() % 16 < seed)
+            if (i != LAB_SIZE-1 && my_rand % 16 < seed) // decyzja o polaczeniu na prawo
             {
                 lab[i*LAB_SIZE+j][(i+1)*LAB_SIZE+j] = lab[(i+1)*LAB_SIZE+j][i*LAB_SIZE+j] = (arr[i][j]+arr[i+1][j])/2.0;
-                //my_rand >>= 4;
+                my_rand >>= 1;
+                connection_exists = 1;
             }
-            if (j != LAB_SIZE-1 && rand() % 16 < seed)
+            if (j != LAB_SIZE-1 && my_rand % 16 < seed) // decyzja na polaczeniu w dol
             {
                 lab[i*LAB_SIZE+j][i*LAB_SIZE+j+1]   = lab[i*LAB_SIZE+j+1][i*LAB_SIZE+j]   = (arr[i][j]+arr[i][j+1])/2.0;
-                my_rand >>= 4;
+                my_rand >>= 1;
+                connection_exists = 1;
             }
-            //std::cout << "\t\t";
-            //std::cout << i*LAB_SIZE+j << ": ";
-            //for (int k = 0; k < options[4]; ++k) std::cout << options[k];
-
-            //for (int k = 0; k < options[4]; ++k) // dla każdego dostępnego kierunku decyduję, czy istnieje połączenie
-            // {
-            //     diff = (options[k]/3>=1?-1:1)*(options[k]%2?1:LAB_SIZE);
-            //     std::cout << diff;
-            //     if (my_rand % 16 < 9)
-
-            // }
-            // {
-            //     // std::cout << "diff: " << diff << '\n';
-            //     std::cout << "los: " << options[k] << '\t';
-            //     if (my_rand % 16 < 9) // przyjalem prawdopodobienstwo polaczenia 9/16
-            //     {
-            //         switch (options[k])
-            //         {
-            //             case 1: lab[i*LAB_SIZE+j][i*LAB_SIZE+j+1]   = lab[i*LAB_SIZE+j+1][i*LAB_SIZE+j]   = (arr[i][j]+arr[i][j+1])/2.0; std::cout << 'P'; break;
-            //             case 2: lab[i*LAB_SIZE+j][(i+1)*LAB_SIZE+j] = lab[(i+1)*LAB_SIZE+j][i*LAB_SIZE+j] = (arr[i][j]+arr[i+1][j])/2.0; std::cout << 'D'; break;
-            //             case 3: lab[i*LAB_SIZE+j][i*LAB_SIZE+j-1]   = lab[i*LAB_SIZE+j-1][i*LAB_SIZE+j]   = (arr[i][j]+arr[i][j-1])/2.0; std::cout << 'L'; break;
-            //             case 4: lab[i*LAB_SIZE+j][(i-1)*LAB_SIZE+j] = lab[(i-1)*LAB_SIZE+j][i*LAB_SIZE+j] = (arr[i][j]+arr[i-1][j])/2.0; std::cout << 'G'; break;
-            //         }
-            //         //lab[i*LAB_SIZE+j][i*LAB_SIZE+j+diff] = lab[i*LAB_SIZE+j+diff][i*LAB_SIZE+j] = (arr[i][j] + (options[k]%2?arr[i+diff/LAB_SIZE][j]:arr[i][diff])) / 2;
-            //         std::cout << options[k] << '\n';
-            //         connection_exists = 1;
-            //     }
-            //     my_rand >>=4;
-            // }
-            // std::cout << "conn:" << connection_exists << "op4:" << options[4];
-            // if (! connection_exists)
-            //     switch (options[my_rand%(options[4])+1])
-            //     {
-            //         case 1: lab[i*LAB_SIZE+j][i*LAB_SIZE+j+1]   = lab[i*LAB_SIZE+j+1][i*LAB_SIZE+j]   = (arr[i][j]+arr[i][j+1])/2.0; std::cout << "\t dolosowano P"; break;
-            //         case 2: lab[i*LAB_SIZE+j][(i+1)*LAB_SIZE+j] = lab[(i+1)*LAB_SIZE+j][i*LAB_SIZE+j] = (arr[i][j]+arr[i+1][j])/2.0; std::cout << "\t dolosowano D"; break;
-            //         case 3: lab[i*LAB_SIZE+j][i*LAB_SIZE+j-1]   = lab[i*LAB_SIZE+j-1][i*LAB_SIZE+j]   = (arr[i][j]+arr[i][j-1])/2.0; std::cout << "\t dolosowano L"; break;
-            //         case 4: lab[i*LAB_SIZE+j][(i-1)*LAB_SIZE+j] = lab[(i-1)*LAB_SIZE+j][i*LAB_SIZE+j] = (arr[i][j]+arr[i-1][j])/2.0; std::cout << "\t dolosowano G"; break;
-            //     }
+            if (!connection_exists)
+            {
+                for (int x = 0; x < 5; ++x) options[x] = 0;
+                if (j != 0)             options[options[4]++] = 3; // lewo dostepne
+                if (j != LAB_SIZE - 1)  options[options[4]++] = 1; // prawo dostepne
+                if (i != 0)             options[options[4]++] = 4; // gora dostepna
+                if (i != LAB_SIZE - 1)  options[options[4]++] = 2; // dol dostepny
+                for (int x = 0; x < options[x]; ++x);
+                sgn = (options[my_rand%options[4]]/3>=1?-1:1);
+                diff = (options[my_rand%options[4]]%2?1:LAB_SIZE);
+                lab[i*LAB_SIZE+j][i*LAB_SIZE+j+diff*sgn] = lab[i*LAB_SIZE+j+diff*sgn][i*LAB_SIZE+j] = (arr[i][j]+arr[i+(diff/4?1:0)*sgn][j+(diff%4?1:0)*sgn])/2.0;
+            }
         }
-        std::cout << "\n";
     }
     //print_arr(lab);
     print_lab(lab);
