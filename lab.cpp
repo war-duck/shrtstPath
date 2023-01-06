@@ -1,4 +1,4 @@
-#include "create_lab.hpp"
+#include "lab.hpp"
 
 void create_lab (double lab[LAB_SIZE*LAB_SIZE][LAB_SIZE*LAB_SIZE], std::string *lab_str, int start = -1, int end = -1)
 {
@@ -9,7 +9,8 @@ void create_lab (double lab[LAB_SIZE*LAB_SIZE][LAB_SIZE*LAB_SIZE], std::string *
         {
             for (int j = 0; j < LAB_SIZE; ++j)
             {
-                (*lab_str)[i*(4*LAB_SIZE+3)+4*j+2] = (*lab_str)[i*(4*LAB_SIZE+3)+4*j+3] = ' ';
+                (*lab_str)[i*(4*LAB_SIZE+3)+4*j+2] = ((i/2)*LAB_SIZE+j>9?((i/2)*LAB_SIZE+j)/10:0)+48;
+                (*lab_str)[i*(4*LAB_SIZE+3)+4*j+3] = (((i/2)*LAB_SIZE+j)%10+48);
                 if (j != LAB_SIZE-1 && lab[(i/2)*LAB_SIZE+j][(i/2)*LAB_SIZE+j+1])
                     (*lab_str)[i*(4*LAB_SIZE+3)+4*j+4] = (*lab_str)[i*(4*LAB_SIZE+3)+4*j+5] = ' ';
                 if (i != 2*LAB_SIZE-1 && lab[(i/2)*LAB_SIZE+j][(i/2+1)*LAB_SIZE+j])

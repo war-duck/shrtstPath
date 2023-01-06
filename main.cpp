@@ -1,4 +1,4 @@
-#include "create_lab.hpp"
+#include "lab.hpp"
 #include "solver.hpp"
 int main()
 {
