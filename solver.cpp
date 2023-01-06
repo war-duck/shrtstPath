@@ -79,11 +79,9 @@ pair<vector<int>, double> shrtstPath(int start, int dest, vector<vector<double>>
 	return minResult;
 }
 
-int solve(int numberOfNodes, int start, int dest, result lab_data)
+vector<int> solve(int numberOfNodes, int start, int dest, result lab_data)
 {
-	std::cout << lab_data->lab_str; 
 	vector<vector<double>> graph;
-	ifstream file;
 	
 	graph.push_back(vector<double>());
 	for (short x = 0; x < numberOfNodes; ++x)
@@ -98,22 +96,26 @@ int solve(int numberOfNodes, int start, int dest, result lab_data)
 				graph[j][i] = (*(lab_data->lab+i))[j];
 			}
 	short ctr = 0;
-	// cout << '\t';
-	// for (short x = 0; x < numberOfNodes; ++x){cout.width(8);cout << x;} 
-	// for (auto i : graph)
-	// {
-	// 	cout << "\n\n";
-	// 	cout.width(8);
-	// 	cout << ctr++;
-	// 	for (auto j : i)
-	// 	{
-	// 		cout.width(8);
-	// 		cout << j;
-	// 	}
-	// }
+#ifdef SHOW_ARR
+	cout << '\t'; // print arr
+	for (short x = 0; x < numberOfNodes; ++x){cout.width(8);cout << x;} 
+	for (auto i : graph)
+	{
+		cout << "\n\n";
+		cout.width(8);
+		cout << ctr++;
+		for (auto j : i)
+		{
+			cout.width(8);
+			cout << j;
+		}
+	}
+	cout << '\n';
+#endif
 	pair <vector<int>, double> path;
 	path = shrtstPath(start, dest, graph, set<int>());
 	path.first.insert(path.first.begin(), start);
+	cout << lab_data->lab_str;
 	if (path.second != double(~(unsigned int)0))
 	{
 		cout << "dlugosc: " << path.second << endl << "sciezka: ";
@@ -122,16 +124,7 @@ int solve(int numberOfNodes, int start, int dest, result lab_data)
 				cout << i << " ";
 		else cout << "bezposrednie polaczenie";
 	}
-	else cout << "brak polaczenia :(";
+	else cout << "brak polaczenia\n:(";
 	cout << '\n';
-	// cout << "a teraz sciezki: \n";
-	// for (auto i : solutions.paths)
-	// {
-	// 	for (auto j : i)
-	// 	{
-	// 		cout << j << " ";
-	// 	}
-	// 	cout << '\n';
-	// }
-	return 0;
+	return path.first;
 }

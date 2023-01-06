@@ -1,5 +1,32 @@
 #include "lab.hpp"
 
+void add_path_anim (std::string* lab_str, std::vector<int> path)
+{
+    if (path.size() < 2) return;
+    COORD cord;
+	cord.X = 0;
+	cord.Y = 5+2*LAB_SIZE;
+    int prev, diff, current_pos = 4*LAB_SIZE+3 + 4*path[0]+2, pm;
+    (*lab_str)[4*path[0]+2] = (*lab_str)[4*path[0]+3] = char(177);
+    for (int i = 1; i < path.size(); ++i)
+    {
+        pm = path[i] > path[i-1] ? 1 : -1;
+        diff = pm*(path[i] - path[i-1]) > 1 ? 4*LAB_SIZE+3 : 2;
+        (*lab_str)[current_pos] = (*lab_str)[current_pos+1] = char(177); // obecny wierzcholek
+        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cord); // kursor na (0, 2)
+        std::cout << *lab_str;
+        Sleep (100);
+        (*lab_str)[current_pos+pm*diff] = (*lab_str)[current_pos+pm*diff+1] = char(177);
+        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cord); // kursor na (0, 2)
+        std::cout << *lab_str;
+        Sleep (100);
+        current_pos += 2*diff*pm;
+    }
+    (*lab_str)[current_pos] = (*lab_str)[current_pos+1] = (*lab_str)[current_pos+4*LAB_SIZE+3] = (*lab_str)[current_pos+4*LAB_SIZE+4] = char(177);
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cord); // kursor na (0, 2)
+    std::cout << *lab_str;
+}
+
 void create_lab (double lab[LAB_SIZE*LAB_SIZE][LAB_SIZE*LAB_SIZE], std::string *lab_str, int start = -1, int end = -1)
 {
     for (int i = 0; i < 2*LAB_SIZE; ++i)
@@ -9,8 +36,9 @@ void create_lab (double lab[LAB_SIZE*LAB_SIZE][LAB_SIZE*LAB_SIZE], std::string *
         {
             for (int j = 0; j < LAB_SIZE; ++j)
             {
-                (*lab_str)[i*(4*LAB_SIZE+3)+4*j+2] = ((i/2)*LAB_SIZE+j>9?((i/2)*LAB_SIZE+j)/10:0)+48;
-                (*lab_str)[i*(4*LAB_SIZE+3)+4*j+3] = (((i/2)*LAB_SIZE+j)%10+48);
+                (*lab_str)[i*(4*LAB_SIZE+3)+4*j+2] = ((i/2)*LAB_SIZE+j>9?(((i/2)*LAB_SIZE+j)%100)/10:0)+'0';
+                (*lab_str)[i*(4*LAB_SIZE+3)+4*j+3] = (((i/2)*LAB_SIZE+j)%10+'0');
+                //(*lab_str)[i*(4*LAB_SIZE+3)+4*j+2] = (*lab_str)[i*(4*LAB_SIZE+3)+4*j+3] = ' '; // alt dla l. 39-40 - bez numerow
                 if (j != LAB_SIZE-1 && lab[(i/2)*LAB_SIZE+j][(i/2)*LAB_SIZE+j+1])
                     (*lab_str)[i*(4*LAB_SIZE+3)+4*j+4] = (*lab_str)[i*(4*LAB_SIZE+3)+4*j+5] = ' ';
                 if (i != 2*LAB_SIZE-1 && lab[(i/2)*LAB_SIZE+j][(i/2+1)*LAB_SIZE+j])
@@ -22,53 +50,36 @@ void create_lab (double lab[LAB_SIZE*LAB_SIZE][LAB_SIZE*LAB_SIZE], std::string *
     return;
 }
 
-void print_lab (double lab[LAB_SIZE*LAB_SIZE][LAB_SIZE*LAB_SIZE])
-{
-    std::string full (2, char(219)), empty = "  ";
-    std::cout << std::string(4*LAB_SIZE+2, char(219));
-    for (int i = 0; i < LAB_SIZE; ++i)
-    {
-        std::cout << '\n';
-        for (int j = 0; j < LAB_SIZE; ++j)
-        {
-        if (j == 0) std::cout << full;
-        if (j != LAB_SIZE-1)
-            std::cout << empty << (lab[i*LAB_SIZE+j][i*LAB_SIZE+j+1]?empty:full);
-        else std::cout << empty << full;
-        }
-        if (i == LAB_SIZE-1) break;
-        std::cout << '\n' << full;
-        for (int j = 0; j < LAB_SIZE; ++j)
-        {
-            std::cout << (lab[i*LAB_SIZE+j][(i+1)*LAB_SIZE+j]?empty:full) << full;
-        }
-    }
-    std::cout << '\n' << std::string(4*LAB_SIZE+2, char(219)) << '\n';
-    //std::cout << full << empty << full << empty << full;
-}
-
 void add_start_end (std::string *lab_str, int* start, int* end)
 {
     unsigned int tmp;
-    do
+    system("CLS");
+    do // wybieranie poczatku
     {
+
         std::cout << "wybierz wezel poczatkowy (liczba 0 - " << LAB_SIZE-1 << "): \n";
         for (int x = 0; x < LAB_SIZE; ++x) {std::cout.width(4); std::cout << x;}
         std::cout << '\n' << *lab_str;
         std::cin >> tmp;
+        std::cin.clear();
+        std::cin.ignore(1000, '\n');
     } while (tmp >= LAB_SIZE);
     (*lab_str)[4*tmp+2] = (*lab_str)[4*tmp+3] = ' ';
     *start = tmp;
-    do
+    system("CLS");
+    do // wybieranie konca
     {
-        std::cout << "wybierz wezel koncowy (liczba " << LAB_SIZE*(LAB_SIZE-1) << " - " << LAB_SIZE*LAB_SIZE-1 << "): \n";
+        std::cout << "\nwybierz wezel koncowy (liczba " << LAB_SIZE*(LAB_SIZE-1) << " - " << LAB_SIZE*LAB_SIZE-1 << "): \n";
         std::cout<< *lab_str << '\n' ;
         for (int x = LAB_SIZE*(LAB_SIZE-1); x < LAB_SIZE*LAB_SIZE; ++x) {std::cout.width(4); std::cout << x;}
         std::cout << '\n';
         std::cin >> tmp;
+        std::cin.clear();
+        std::cin.ignore(1000, '\n');
     } while (tmp < LAB_SIZE*(LAB_SIZE-1) || tmp >= LAB_SIZE*LAB_SIZE);
     (*lab_str)[(2*LAB_SIZE)*(4*LAB_SIZE+3)+4*(tmp%LAB_SIZE)+2] = (*lab_str)[(2*LAB_SIZE)*(4*LAB_SIZE+3)+4*(tmp%LAB_SIZE)+3] = ' ';
     *end = tmp;
+    system("CLS");
     return;
 }
 
@@ -143,11 +154,10 @@ result create_paths()
     }
     create_lab(lab, &lab_str);
     add_start_end(&lab_str, &start, &end);
-    //print_lab(lab);
-    result my_result = new a;
+    static result my_result = new a;
     my_result->dest = end;
     my_result->start = start;
-    (my_result->lab) = lab;
+    my_result->lab = lab;
     my_result->lab_str = lab_str;
 
     return my_result;
